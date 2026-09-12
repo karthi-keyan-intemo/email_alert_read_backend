@@ -1,11 +1,13 @@
 from email.header import decode_header, make_header
 from email.utils import parsedate_to_datetime
-from datetime import datetime
+from datetime import date, datetime
+import math
 from uuid import UUID
 
 from app.models.email_alert_request import EmailAlertRequest
 from app.models.email_alert import EmailAlert
 from app.repositories.email_alert_repository import EmailAlertRepository
+from app.repositories.email_alert_repository import EmailAlertFilters
 from app.services.email_parser import get_error_type
 from app.services.email_body_parser import get_body
 from app.services.alert_body_parser import parse_alert_body
@@ -188,11 +190,49 @@ class EmailAlertService:
     
     def get_email_alerts(
         self,
-        from_date: datetime | None = None,
-        to_date: datetime | None = None,
-    ) -> list[EmailAlert]:
+        from_date: date | None = None,
+        to_date: date | None = None,
+        page: int = 1,
+        page_size: int = 20,
+        search: str | None = None,
+        sort_by: str = "alert_timestamp",
+        sort_order: str = "desc",
+        filters: EmailAlertFilters | None = None,
+    ) -> dict:
+        summary = self.__repository.get_page_summary(
+            from_date=from_date,
+            to_date=to_date,
+            search=search,
+            filters=filters,
+        )
+        total = summary["total_alerts"]
+        return {
+            "items": self.__repository.find_all(
+                from_date=from_date,
+                to_date=to_date,
+                offset=(page - 1) * page_size,
+                limit=page_size,
+                search=search,
+                sort_by=sort_by,
+                sort_order=sort_order,
+                filters=filters,
+            ),
+            "page": page,
+            "page_size": page_size,
+            "total": total,
+            "total_pages": math.ceil(total / page_size) if total else 0,
+            "summary": summary,
+        }
 
-        return self.__repository.find_all(
+    def get_analytics(self, filters: EmailAlertFilters) -> dict:
+        return self.__repository.get_analytics(filters)
+
+    def export_email_alerts(
+        self,
+        from_date: date | None = None,
+        to_date: date | None = None,
+    ) -> list[EmailAlert]:
+        return self.__repository.find_all_for_export(
             from_date=from_date,
             to_date=to_date,
         )

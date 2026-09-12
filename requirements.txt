@@ -7,3 +7,6 @@ pydantic-settings
 pytest
 httpx
 bs4
+openpyxl
+PyJWT
+bcrypt

@@ -1,11 +1,17 @@
 from datetime import date, datetime
 from uuid import UUID
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 
 class EmailAlertReadRequest(BaseModel):
     from_date: date
     to_date: date
+
+    @model_validator(mode="after")
+    def validate_date_range(self):
+        if self.from_date > self.to_date:
+            raise ValueError("from_date cannot be later than to_date")
+        return self
 
 
 class EmailAlertReadResponse(BaseModel):
@@ -63,8 +69,44 @@ class EmailAlertResponse(BaseModel):
     original_body: str | None
     created_at: datetime
 
-    requests: list[EmailAlertRequestResponse] = []
+    requests: list[EmailAlertRequestResponse] = Field(default_factory=list)
 
     model_config = {
         "from_attributes": True,
     }
+
+
+class EmailAlertSummary(BaseModel):
+    total_alerts: int
+    unknown_errors: int
+    response_validation_errors: int
+    total_requests: int
+
+
+class PaginatedEmailAlertResponse(BaseModel):
+    items: list[EmailAlertResponse]
+    page: int
+    page_size: int
+    total: int
+    total_pages: int
+    summary: EmailAlertSummary
+
+
+class AnalyticsSummary(BaseModel):
+    total_alerts: int
+    total_requests: int
+    unknown_errors: int
+    response_validation_errors: int
+    unique_sources: int
+    unique_environments: int
+
+
+class AnalyticsResponse(BaseModel):
+    summary: AnalyticsSummary
+    trend: list[dict]
+    error_type_distribution: list[dict]
+    by_source: list[dict]
+    by_environment: list[dict]
+    top_errors: list[dict]
+    source_error_type: list[dict]
+    recent_alerts: list[EmailAlertResponse]

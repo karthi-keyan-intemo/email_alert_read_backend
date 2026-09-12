@@ -5,6 +5,8 @@ from sqlalchemy import engine_from_config, pool
 
 from app.db.base import Base
 from app.models.email_alert import EmailAlert  # noqa: F401
+from app.models.email_alert_request import EmailAlertRequest  # noqa: F401
+from app.models.auth import Permission, Role, User  # noqa: F401
 from app.core.config import settings
 
 config = context.config

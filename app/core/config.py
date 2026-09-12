@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -6,6 +7,14 @@ class Settings(BaseSettings):
     EMAIL: str
     APP_PASSWORD: str
     GMAIL_FOLDER: str
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+    @field_validator("JWT_ALGORITHM")
+    @classmethod
+    def normalize_jwt_algorithm(cls, value: str) -> str:
+        return value.strip().upper()
 
     model_config = SettingsConfigDict(
         env_file=".env",
