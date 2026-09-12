@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: .
+    container_name: email_alert_backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgresadmin:${POSTGRES_PASSWORD}@host.docker.internal:5433/email_alert_reader
+      EMAIL: ${EMAIL}
+      APP_PASSWORD: ${APP_PASSWORD}
+      GMAIL_FOLDER: ${GMAIL_FOLDER}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: email_alert_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
