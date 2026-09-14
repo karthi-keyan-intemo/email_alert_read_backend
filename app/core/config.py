@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    N8N_WEBHOOK_SECRET: str
 
     @field_validator("JWT_ALGORITHM")
     @classmethod

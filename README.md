@@ -174,4 +174,37 @@ Example:
 ```text
 GET /api/email-alerts/analytics?from_date=2026-09-08&to_date=2026-09-12&environment=PRODUCTION&source_name=ONEY
 ```
+
+### n8n Azure Task webhook
+
+`POST /api/integrations/n8n/azure-task` is a dedicated machine-to-machine endpoint for n8n. It validates `X-Webhook-Secret`, checks the request body, finds every `EmailAlert` whose `error_message` contains the supplied value using a case-insensitive PostgreSQL `ILIKE` match, and updates only the `azure_task` field for all matching records.
+
+Headers:
+
+```text
+Content-Type: application/json
+X-Webhook-Secret: <secret>
+```
+
+Body:
+
+```json
+{
+  "error_message": "ElementMissingInPage",
+  "azure_task_url": "https://dev.azure.com/company/project/_workitems/edit/12345"
+}
+```
+
+Successful response:
+
+```json
+{
+  "success": true,
+  "error_message": "ElementMissingInPage",
+  "azure_task_url": "https://dev.azure.com/company/project/_workitems/edit/12345",
+  "alerts_updated": 3
+}
+```
+
+If the secret is missing, empty, or invalid, the API returns `401 Unauthorized`. If no alerts match the supplied error message, it returns `404 Not Found`.
 ```

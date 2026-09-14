@@ -10,6 +10,7 @@ services:
       EMAIL: ${EMAIL}
       APP_PASSWORD: ${APP_PASSWORD}
       GMAIL_FOLDER: ${GMAIL_FOLDER}
+      N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

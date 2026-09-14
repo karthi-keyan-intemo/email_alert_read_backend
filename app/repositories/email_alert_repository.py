@@ -280,3 +280,25 @@ class EmailAlertRepository:
         self.__db.flush()
 
         return alert
+
+    def update_azure_task_by_error_message_contains(
+        self,
+        error_message: str,
+        azure_task_url: str,
+    ) -> int:
+        sanitized_error_message = error_message.strip()
+        if not sanitized_error_message:
+            return 0
+
+        result = self.__db.execute(
+            EmailAlert.__table__.update()
+            .where(func.lower(EmailAlert.error_message) == sanitized_error_message.lower())
+            .values(azure_task=azure_task_url)
+        )
+        return result.rowcount or 0
+
+    def commit(self):
+        self.__db.commit()
+
+    def rollback(self):
+        self.__db.rollback()
