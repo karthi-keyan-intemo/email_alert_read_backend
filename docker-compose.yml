@@ -24,3 +24,21 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+  cron:
+    build:
+      context: .
+      dockerfile: cron/Dockerfile
+    container_name: email_alert_cron
+    environment:
+      CRON_BACKEND_BASE_URL: http://backend:8000
+      CRON_BACKEND_EMAIL: ${CRON_BACKEND_EMAIL}
+      CRON_BACKEND_PASSWORD: ${CRON_BACKEND_PASSWORD}
+      CRON_SCHEDULE: ${CRON_SCHEDULE:-0 10 * * *}
+      CRON_TIMEZONE: ${CRON_TIMEZONE:-Asia/Kolkata}
+      CRON_LOOKBACK_DAYS: ${CRON_LOOKBACK_DAYS:-1}
+      CRON_RETRIES: ${CRON_RETRIES:-2}
+      CRON_REQUEST_TIMEOUT: ${CRON_REQUEST_TIMEOUT:-120}
+    depends_on:
+      - backend
+    restart: unless-stopped
