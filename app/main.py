@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -5,8 +7,20 @@ from app.api.routes.email_alert import router as email_alert_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.access import router as access_router
 from app.api.routes.integrations import router as integration_router
+from app.cron import create_scheduler
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = create_scheduler()
+    if scheduler is not None:
+        scheduler.start()
+    yield
+    if scheduler is not None:
+        scheduler.shutdown(wait=False)
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

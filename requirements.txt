@@ -11,4 +11,3 @@ openpyxl
 PyJWT
 bcrypt
 apscheduler
-requests
