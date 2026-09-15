@@ -17,6 +17,7 @@ def run_email_sync() -> None:
     from_date = date.today() - timedelta(days=settings.CRON_LOOKBACK_DAYS)
     to_date = date.today()
 
+    logger.info("Email alert sync starting (from_date=%s, to_date=%s)", from_date, to_date)
     db = SessionLocal()
     try:
         service = EmailAlertService(
@@ -45,9 +46,15 @@ def run_email_sync() -> None:
 
 def create_scheduler() -> BackgroundScheduler | None:
     if not settings.CRON_ENABLED:
+        logger.info("Application cron disabled (CRON_ENABLED=false)")
         return None
 
-    logger.info("Starting email alert sync scheduler with schedule: %s and timezone: %s", settings.CRON_SCHEDULE, settings.CRON_TIMEZONE)
+    logger.info(
+        "Application cron enabled: schedule=%s timezone=%s lookback_days=%s",
+        settings.CRON_SCHEDULE,
+        settings.CRON_TIMEZONE,
+        settings.CRON_LOOKBACK_DAYS,
+    )
     scheduler = BackgroundScheduler(timezone=settings.CRON_TIMEZONE)
     scheduler.add_job(
         run_email_sync,

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     N8N_WEBHOOK_SECRET: str
-    CRON_ENABLED: bool = False
+    CRON_ENABLED: bool = True
     CRON_SCHEDULE: str = "30 4 * * *"
     CRON_TIMEZONE: str = "Asia/Kolkata"
     CRON_LOOKBACK_DAYS: int = 1

@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,13 +10,33 @@ from app.api.routes.integrations import router as integration_router
 from app.cron import create_scheduler
 
 
+def _setup_app_logging() -> None:
+    logger = logging.getLogger("app")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
+        )
+        logger.addHandler(handler)
+    logger.propagate = False
+
+
+_setup_app_logging()
+
+logger = logging.getLogger(__name__)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info("Starting application lifespan")
     scheduler = create_scheduler()
     if scheduler is not None:
         scheduler.start()
+        logger.info("Application cron scheduler started")
     yield
     if scheduler is not None:
+        logger.info("Shutting down application lifespan")
         scheduler.shutdown(wait=False)
 
 
