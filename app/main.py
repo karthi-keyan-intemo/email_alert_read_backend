@@ -48,6 +48,7 @@ app.add_middleware(
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "https://strong-toffee-b99918.netlify.app",
+        "https://email-error-dashboard.netlify.app",
         "http://localhost:5678",
     ],
     allow_credentials=True,
